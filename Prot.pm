@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# $Header: Prot.pm,v 1.6 98/03/26 13:01:13 paulg Exp $
+# $Id: Prot.pm,v 1.8 1998/11/10 05:09:56 paulg Exp $
 #
 # Copyright (c) 1997-98 Paul Gampe. All Rights Reserved.
 #
@@ -25,7 +25,7 @@ require AutoLoader;
 @EXPORT = qw(
 	
 );
-$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.8 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 bootstrap Authen::Prot $VERSION;
 
@@ -59,7 +59,7 @@ Authen::Prot - Perl extension for accessing protected password database
 
   $pw->putprpwnam();
 
-  $crypt = Authen::Prot::bigcrypt('test', 'test');
+  $crypt = Authen::Prot::bigcrypt('test', 'test'); # not avail on DEC/OSF
 
   Authen::Prot::endprpwent();
 
@@ -81,7 +81,7 @@ Protected Password database has been implemented on your system.
 =item $crypt = Authen::Prot::bigcrypt($key, $salt)
 
 Encrypted $key using the bigcrypt(3) system call if available and
-returns the result.
+returns the result. Not available on DEC/OSF, via this package yet.
 
 =item $pw = Authen::Prot::getprpwent()
 
@@ -139,11 +139,12 @@ method.
 
 The fields available from the methods described above, depend on the
 definition of the pr_struct structure in the F</usr/include/prot.h> on
-your system.  This module will attempt to parse your F<prot.h> file and
-generate a XS function for each field available on your system.  The
-pr_struct typically consists of four structures given the name of ufld,
-sfld, uflg and sflg for User fields, System fields, User flags and
-System flags respectively.
+your system, and the information available I have to interpret them.
+This module will attempt to parse your F<prot.h> file and generate a XS
+function for each field available on your system.  The pr_struct
+typically consists of four structures given the name of ufld, sfld, uflg
+and sflg for User fields, System fields, User flags and System flags
+respectively.
 
 To allow for the syntax differences between C and Perl the field names
 have been re-written replacing the struct C<.> with a C<_> in Perl.  For
@@ -169,16 +170,20 @@ for further information.
 
 =head1 EXAMPLES
 
-The F<test.pl> file provides examples of all the methods available via
-this extension.
+The F<test.pl> file provides examples of the methods available via this
+extension common to most platforms.
 
 =head1 AUTHOR
 
-Paul Gampe <paulg@twics.com>
+Paul Gampe <paulg@apnic.net>.  
+
+I would appreciate it if you could send me an email if you starting
+using this package, so I can notify you of updates, and get an idea of
+what platforms it is compatible with.
 
 =head1 FILES
 
-/usr/include/prot.h
+F</usr/include/prot.h>
 
 =head1 COPYRIGHT
 

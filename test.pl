@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w 
 ###############################################################################
 #
-# $Header: test.pl,v 1.4 98/03/06 12:09:42 paulg Exp $
+# $Header: /usr/local/cvs/paulg/Authen-Prot/test.pl,v 1.6.1.1 1998/10/28 01:03:55 paulg Exp $
 # Copyright (c) 1998 Paul Gampe and TWICS. All Rights Reserved.
 #
 ###############################################################################
@@ -23,7 +23,7 @@ use strict;
 ###############################################################################
 
 use vars qw($VERSION @FIELDS);
-$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.6.1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 ## Some fields 'hopefully' common to most OS implementations
 @FIELDS = qw( name uid owner min maxlen expire lifetime 

@@ -8,13 +8,19 @@ extern "C" {
 }
 #endif
 
+#include <sys/types.h>
+
 #if defined(hpux)
-#include <sys/types.h>
 #include <hpsecurity.h>
-#elif defined(sco_sv)
-#include <sys/types.h>
+#endif
+
+#if defined(sco_sv)
 #include <sys/security.h>
 #include <sys/audit.h>
+#endif
+
+#if defined(dec_osf)
+#include <sys/security.h>
 #endif
 
 #include <prot.h>
@@ -25,25 +31,22 @@ MODULE = Authen::Prot		PACKAGE = Authen::Prot
 
 PROTOTYPES: DISABLE
 
-#if defined(sco_sv)
+
+#if defined(sco_sv) 
 
 BOOT:
 set_auth_parameters(1,"\0");
 
-
 #endif
 
-char *
-bigcrypt(key, salt)
-	char *key;
-	char *salt;
 
+#if defined(dec_osf) 
 
-int 
-acceptable_password (word, stream)
-	char *word;
-	FILE *stream;
+BOOT:
+set_auth_parameters(1,"\0");
+initprivs();
 
+#endif
 
 PASSWD *
 getprpwent(CLASS)
@@ -69,23 +72,6 @@ getprpwuid(CLASS, uid)
     OUTPUT:
 		RETVAL
 
-
-#if defined(hpux)
-
-PASSWD *
-getprpwaid(CLASS, aid)
-		char *CLASS;
-		aid_t aid;
-    CODE:
-		RETVAL = (PASSWD*)getprpwaid(aid);
-		if( RETVAL == NULL ){
-			XSRETURN_UNDEF;
-		}
-    OUTPUT:
-		RETVAL
-
-
-#endif
 
 PASSWD *
 getprpwnam(CLASS, name)
@@ -113,5 +99,39 @@ putprpwnam(self)
     OUTPUT:
 		RETVAL
 
+
+#if defined(sco_sv) || defined(hpux)
+
+char *
+bigcrypt(key, salt)
+	char *key;
+	char *salt;
+
+
+int 
+acceptable_password (word, stream)
+	char *word;
+	FILE *stream;
+
+
+#endif
+
+
+#if defined(hpux)
+
+PASSWD *
+getprpwaid(CLASS, aid)
+		char *CLASS;
+		aid_t aid;
+    CODE:
+		RETVAL = (PASSWD*)getprpwaid(aid);
+		if( RETVAL == NULL ){
+			XSRETURN_UNDEF;
+		}
+    OUTPUT:
+		RETVAL
+
+
+#endif
 
 INCLUDE: ./xsgen.pl |

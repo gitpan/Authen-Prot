@@ -1,6 +1,11 @@
 Revision history for Perl extension Authen::Prot.
 
-$Log:	Changes,v $
+$Log: Changes,v $
+Revision 1.7  1998/10/28 01:23:11  paulg
+Received information from a few Digital uses and attempting to add support.
+
+Revision 1.6.1.1  1998/10/28 01:03:55  paulg
+
 # Revision 1.6  98/03/06  12:09:37  12:09:37  paulg (Paul Gampe)
 # Added code to handle sco's unsigned short and skip void*
 # 

@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 ###############################################################################
 #
-# $Header: xsgen.pl,v 1.1 98/03/26 13:01:42 paulg Exp $
+# $Id: xsgen.pl,v 1.8 1998/11/10 05:09:57 paulg Exp $
 # Copyright (c) 1998 Paul Gampe. All Rights Reserved.
 #
-# This script parses the C struct defined in prot.h and generates
+# This script parses the C struct defined in prot.h and generates a
 # Prot.xs to match.  
 # 
 ###############################################################################
@@ -12,16 +12,17 @@
 use strict;
 no strict 'refs';
 
-sub int      { return 'var = (int)    SvIV(ST(1));'     }
-sub char     { return 'var = (char)*  SvPV(ST(1), na);' }
-sub char_ptr { return 'var = (char*)  SvPV(ST(1), na);' }
-sub uid_t    { return 'var = (uid_t)  SvNV(ST(1));'     }
-sub mask_t   { return 'var = (mask_t) SvNV(ST(1));'     }
-sub aid_t    { return 'var = (aid_t)  SvNV(ST(1));'     }
-sub time_t   { return 'var = (time_t) SvNV(ST(1));'     }
-sub long     { return 'var = (long)   SvIV(ST(1));'     }
-sub short    { return 'var = (short)  SvIV(ST(1));'     }
-sub ushort   { return 'var = (ushort) SvIV(ST(1));'     }
+sub int      { return 'var = (int)     SvIV(ST(1));'     }
+sub char     { return 'var = (char)*   SvPV(ST(1), na);' }
+sub char_ptr { return 'var = (char*)   SvPV(ST(1), na);' }
+sub uid_t    { return 'var = (uid_t)   SvNV(ST(1));'     }
+sub mask_t   { return 'var = (mask_t)  SvNV(ST(1));'     }
+sub aid_t    { return 'var = (aid_t)   SvNV(ST(1));'     }
+sub time_t   { return 'var = (time_t)  SvNV(ST(1));'     }
+sub long     { return 'var = (long)    SvIV(ST(1));'     }
+sub short    { return 'var = (short)   SvIV(ST(1));'     }
+sub ushort   { return 'var = (ushort)  SvIV(ST(1));'     }
+sub uchar_t  { return 'var = (uchar_t) SvIV(ST(1));'     }
 
 my $proc_struct = 0;
 
@@ -36,8 +37,14 @@ while(<PROT>) {
 	last if /^\}/;		# break if we've hit the end
 	chomp;
 
-	if (/^#define\s+(\w+)/) { $def = $1; next; } # get the define
+	# HPUX and SCO include the define above the struct field def.
+	if (/^#define\s+(\w+)/) { $def = $1; next; } 
 
+	# Digital have 'es' and 'pr' interfaces.  I'm only supporting the
+	# 'pr' interfaces.  Within their pr_field struct, the defines are
+	# re-written as comments.  In their struct espw_field they use
+	# defines, thanks! So the following regexp has to look for comments.
+	if (/^\/\*\s+(\w+)\s+\"[^"]*\"\s+\*\//) { $def = $1; next; } 
 
 	# uid_t	fd_uid;	 	/* uid associated with name above */
 	# char	fd_name[9];	/* uses 8 character maximum(and \0) from utmp */
@@ -47,13 +54,22 @@ while(<PROT>) {
 		my($fd_field,$ext) = split(/\[/, $field);	## check for []
 		die "no def for $fd_field\n" unless $def ne "";
 
-		## HPUX: don't do any reserved fd_field
+		# HPUX: don't do any reserved fd_field
 		next if ($type =~ /mask_t/);
 
-		## SCO: uses unsigned short map it to ushort for func name
+		# DIGITAL: have an exts for kernel auth vector and mand attr.
+		# which I don't know how to handle as I don't have Digital box.
+		# So skip it. If someone can tell me what types these fields are?
+		next if ($type =~ /privvec_t/);
+		next if ($type =~ /mand_ir_t/);
+
+		# DIGITAL: unsupported field <newcomer@dickinson.edu>
+		next if ($fd_field =~ /clearance_filler/);
+
+		# SCO: uses unsigned short map it to ushort for func name
 		$type="ushort" if ($type =~ /unsigned short/);
 
-		## SCO: has a void* for future use, skip it for now
+		# SCO: has a void* for future use, skip it for now
 		next if ($type =~ /void/);
 
 		my $ufld="ufld_". "$fd_field";

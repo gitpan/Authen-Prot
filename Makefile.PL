@@ -22,7 +22,9 @@ WriteMakefile(
     'CONFIG'    => ['osname'],		# Used to determine available functions
     'DEFINE'    => '-D$(OSNAME)',
     'dist'         => {
-		PREOP=> '/opt/perl5/bin/pod2text Prot.pm > README',
+		PREOP      => '/opt/perl5/bin/pod2text Prot.pm > README;\
+                       /opt/perl5/bin/pod2html --noindex \
+                       Prot.pm > Authen-Prot.man.html',
 		COMPRESS=> 'gzip -9f', SUFFIX=>'gz',
     },
 );
